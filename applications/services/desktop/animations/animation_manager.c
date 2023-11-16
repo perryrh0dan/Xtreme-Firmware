@@ -390,25 +390,35 @@ static StorageAnimation*
     uint32_t whole_weight = 0;
 
     bool fallback = XTREME_SETTINGS()->fallback_anim;
-    FURI_LOG_E(TAG, "test avoid animation: ");
-    FURI_LOG_E(TAG, "%d", dolphin_internal_size);
+    bool unlock = XTREME_SETTINGS()->unlock_anims;
+
+    uint32_t valid_animations = 0;
+    for
+        M_EACH(item, animation_list, StorageAnimationList_t) {
+            const StorageAnimationManifestInfo* manifest_info = animation_storage_get_meta(*item);
+            bool valid = animation_manager_is_valid_idle_animation(manifest_info, &stats, unlock);
+            if(valid) {
+                valid_animations += 1;
+            };
+        }
+
+    if(valid_animations <= 2 && !fallback) {
+        // One ext anim and fallback disabled, dont skip current anim (current = only ext one)
+        avoid_animation = NULL;
+    }
 
     if(StorageAnimationList_size(animation_list) == dolphin_internal_size + 1 && !fallback) {
         // One ext anim and fallback disabled, dont skip current anim (current = only ext one)
         avoid_animation = NULL;
     }
 
-    FURI_LOG_E(TAG, "%d", fallback);
-
     StorageAnimationList_it_t it;
-    bool unlock = XTREME_SETTINGS()->unlock_anims;
     for(StorageAnimationList_it(it, animation_list); !StorageAnimationList_end_p(it);) {
         StorageAnimation* storage_animation = *StorageAnimationList_ref(it);
         const StorageAnimationManifestInfo* manifest_info =
             animation_storage_get_meta(storage_animation);
         bool valid = animation_manager_is_valid_idle_animation(manifest_info, &stats, unlock);
 
-        FURI_LOG_E(TAG, avoid_animation);
         if(avoid_animation != NULL && strcmp(manifest_info->name, avoid_animation) == 0) {
             // Avoid repeating same animation twice
             valid = false;
