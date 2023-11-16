@@ -390,10 +390,15 @@ static StorageAnimation*
     uint32_t whole_weight = 0;
 
     bool fallback = XTREME_SETTINGS()->fallback_anim;
+    FURI_LOG_E(TAG, "test avoid animation: ");
+    FURI_LOG_E(TAG, "%d", dolphin_internal_size);
+
     if(StorageAnimationList_size(animation_list) == dolphin_internal_size + 1 && !fallback) {
         // One ext anim and fallback disabled, dont skip current anim (current = only ext one)
         avoid_animation = NULL;
     }
+
+    FURI_LOG_E(TAG, "%d", fallback);
 
     StorageAnimationList_it_t it;
     bool unlock = XTREME_SETTINGS()->unlock_anims;
@@ -403,6 +408,7 @@ static StorageAnimation*
             animation_storage_get_meta(storage_animation);
         bool valid = animation_manager_is_valid_idle_animation(manifest_info, &stats, unlock);
 
+        FURI_LOG_E(TAG, avoid_animation);
         if(avoid_animation != NULL && strcmp(manifest_info->name, avoid_animation) == 0) {
             // Avoid repeating same animation twice
             valid = false;
