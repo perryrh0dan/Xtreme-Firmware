@@ -397,19 +397,15 @@ static StorageAnimation*
     bool unlock = XTREME_SETTINGS()->unlock_anims;
 
     uint32_t valid_animations = 0;
-    StorageAnimationList_it_t t;
-    for(StorageAnimationList_it(t, animation_list); !StorageAnimationList_end_p(t);) {
-        FURI_LOG_E(TAG, "test");
-        StorageAnimation* storage_animation = *StorageAnimationList_ref(t);
-        const StorageAnimationManifestInfo* manifest_info =
-            animation_storage_get_meta(storage_animation);
-        bool valid = animation_manager_is_valid_idle_animation(manifest_info, &stats, unlock);
 
-        if(valid) {
-            valid_animations += 1;
-        };
-        StorageAnimationList_next(t);
-    }
+    for
+        M_EACH(item, animation_list, StorageAnimationList_t) {
+            const StorageAnimationManifestInfo* manifest_info = animation_storage_get_meta(*item);
+            bool valid = animation_manager_is_valid_idle_animation(manifest_info, &stats, unlock);
+            if(valid) {
+                valid_animations += 1;
+            };
+        }
 
     FURI_LOG_E(TAG, "valid animations: %ld", valid_animations);
     if(valid_animations <= 2 && !fallback) {
